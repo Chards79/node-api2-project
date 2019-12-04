@@ -10,6 +10,6 @@ server.get('/', (req, res) => {
     res.send({ api: 'up and running' });
 });
 
-server.use('/api/hubs', expressRouter)
+server.use('/api/posts', expressRouter)
 
 module.exports = server;

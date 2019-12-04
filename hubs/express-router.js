@@ -2,12 +2,12 @@ const express = require('express');
 
 const router = express.Router();
 
-const Db = require('../hubs/db');
+const db = require('../hubs/db');
 
 router.use(express.json());
 
 router.get('/', (req, res) => {
-    Db.find(req.query)
+    db.find(req.query)
         .then(hubs => {
             res.status(200).json(hubs);
         })
@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 
 // POST to /api/posts
 
-router.post('/api/posts', (req, res) => {
+router.post('/', (req, res) => {
     const data = req.body;
 
     if (data.title && data.contents) {
@@ -38,13 +38,13 @@ router.post('/api/posts', (req, res) => {
 
 // POST to /api/posts/:id/comments
 
-router.post('/api/posts/:id/comments', (req, res) => {
+router.post('/:id/comments', (req, res) => {
 
 })
 
 // GET to /api/posts
 
-router.get('/api/posts', (req, res) => {
+router.get('/', (req, res) => {
     db.find()
         .then(posts => {
             res.status(200).json(posts);
@@ -57,7 +57,7 @@ router.get('/api/posts', (req, res) => {
 
 // GET to /api/posts/:id
 
-router.get('/api/posts/:id', (req, res) => {
+router.get('/:id', (req, res) => {
     const id = req.params.id;
 
     if (id === id) {
@@ -76,7 +76,7 @@ router.get('/api/posts/:id', (req, res) => {
 
 // GET to /api/posts/:id/comments
 
-router.get('/api/posts/:id/comments', (req, res) => {
+router.get('/:id/comments', (req, res) => {
     const id = req.params.id;
 
     if (id === id) {
@@ -95,7 +95,7 @@ router.get('/api/posts/:id/comments', (req, res) => {
 
 // DELETE to /api/posts/:id
 
-router.delete('/api/posts/:id', (req, res) => {
+router.delete('/:id', (req, res) => {
     const id = req.params.id;
 
     db.remove(id)
@@ -114,5 +114,26 @@ router.delete('/api/posts/:id', (req, res) => {
 
 // PUT to /api/posts/:id
 
+router.put('/:id', (req, res) => {
+    const id = req.params.id;
+    const { title, contents } = req.body;
+
+    if (!title || !contents) {
+        res.status(400).json({ errorMessage: 'Please provide title and contents for the post' })
+    } else {
+        db.update(id, req.body)
+            .then(post => {
+                if (post) {
+                    res.status(200).json({ message: 'The post was updated', post })
+                } else {
+                    res.status(404).json({ message: 'The post with the specified ID does not exist' })
+                }
+            })
+            .catch(error => {
+                console.log('error on PUT /api/posts/:id', error);
+                res.status(500).json({ error: 'The post information could not be modified' })
+            })
+    }
+})
 
 module.exports = router;
