@@ -39,7 +39,25 @@ router.post('/', (req, res) => {
 // POST to /api/posts/:id/comments
 
 router.post('/:id/comments', (req, res) => {
+    const id = req.params.id;
+    const { text } = req.body;
 
+    if (!text) {
+        res.status(400).json({ errorMessage: 'Please provide text for the comment' })
+    } else {
+        db.insertComment(id, req.body)
+            .then(comment => {
+                if (comment) {
+                    res.status(201).json({ message: 'The comment was created', comment })
+                } else {
+                    res.status(404).json({ message: 'The post with the specified ID does not exist' })
+                }
+            })
+            .catch(error => {
+                console.log('error on PUT /api/posts/:id', error);
+                res.status(500).json({ error: 'There was an error while saving the comment to the database' })
+            })
+    }
 })
 
 // GET to /api/posts
